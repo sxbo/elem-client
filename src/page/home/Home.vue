@@ -42,7 +42,37 @@
 
 <script>
 import headTop from '../../components/header/head';
+import {cityGuess, hotcity, groupcity} from '../../service/getData'
+
 export default {
+
+    data() {
+        return{
+            guessCity: '',     //当前城市
+            guessCityid: '',   //当前城市id，
+            hotcity: [],       //热门城市列表
+            groupcity: {}      //所有城市列表
+        }
+    },
+    
+    mounted() {
+        //获取当前城市
+        cityGuess().then(res => {
+            this.guessCity = res.name;
+            this.guessCityid = res.id;
+        })
+        //获取热门城市
+        hotcity().then(res => {
+            this.hotcity = res;
+        })
+        //获取所有城市
+        groupcity().then(res => {
+            this.groupcity = res;
+        })
+        
+    },
+    
+
     components:{
         headTop
     },
