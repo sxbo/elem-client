@@ -77,6 +77,24 @@ export default {
         headTop
     },
 
+    computed:{
+        sortgroupcity(){
+            let sortobj = {};
+            for (let i = 65; i <= 90; i++) {
+                if (this.groupcity[String.fromCharCode(i)]){
+                    sortobj[String.fromCharCode(i)] = this.groupcity[String.fromCharCode(i)];
+                }
+            }
+            return sortobj;
+        }
+    },
+
+    methods:{
+        reload() {
+            window.location.reload();
+        }
+    }
+
 }
 </script>
 <style lang="scss" scoped>
