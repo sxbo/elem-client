@@ -20,7 +20,7 @@ const router = new VueRouter({
 			}
 		    return { x: 0, y: to.meta.savedPosition || 0 }
 		}
-	}
+	},
 })
 new Vue({
 	router,
