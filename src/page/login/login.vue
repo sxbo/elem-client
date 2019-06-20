@@ -17,18 +17,19 @@
                 <input type="text" placeholder="账号" >
             </section>
             <section class="input_container">
-                <input type="password" placeholder="密码">
-                <div class="button_switch">
-                    <div class="circle_button"></div>
-                    <span>abc</span>
-                    <span>...</span>
+                <input v-if="!showPassword" type="password" placeholder="密码" v-model="passWord">
+                <input v-else placeholder="密码" v-model="passWord">
+                <div class="button_switch" v-bind:class="{change_to_text: showPassword}">
+                    <div class="circle_button" :class="{trans_to_right: showPassword}"  @click="changePassWordType"></div>
+                    <span v-if="showPassword" class="start_up">开启</span>
+                    <span v-else class="shut_down">关闭</span>
                 </div>
             </section>
             <section class="input_container captcha_code_container">
                 <input type="text" placeholder="验证码" maxlength="4">
                 <div class="img_change_img">
-                    <img src="" alt="图">
-                    <div class="change_img">
+                    <img v-bind:src="captchaCodeImg" v-show="captchaCodeImg" alt="图">
+                    <div class="change_img" @click="getCaptchaCode">
                         <p>看不清</p>
                         <p>换一张</p>
                     </div>
@@ -48,18 +49,35 @@
 </template>
 
 <script>
-import headTop from "../../components/header/head"
+import headTop from "../../components/header/head";
+import {getcaptchas} from '../../service/getData';
 export default {
     data() {
         return {
-            loginWay: false //登录方式，默认短信登录
+            loginWay: false, //登录方式，默认短信登录
+            showPassword: false, //是否显示密码
+            passWord: null, //密码
+            captchaCodeImg: null, //验证码地址
         }
+    },
+    created() {
+        this.getCaptchaCode();
     },
     components: {
         headTop,
     },
 
-    props: {}
+    props: {},
+    methods: {
+        changePassWordType() {
+            this.showPassword = !this.showPassword;
+        },
+
+        async getCaptchaCode() {
+            let res = await getcaptchas();
+            this.captchaCodeImg = res.code; 
+        }
+    }
 }
 </script>
 
@@ -141,5 +159,49 @@ export default {
         border-radius: 0.15rem;
         text-align: center;
     }
+    .button_switch{
+        background-color: #ccc;
+        display: flex;
+        justify-content: center;
+        @include wh(2rem, .7rem);
+        padding: 0 .2rem;
+        border: 1px;
+        border-radius: .5rem;
+        position: relative;
+        .circle_button{
+            transition: all .3s;
+            position: absolute;
+            top: -0.2rem;
+            z-index: 1;
+            left: -0.3rem;
+            @include wh(1.2rem, 1.2rem);
+            box-shadow: 0 0.026667rem 0.053333rem 0 rgba(0,0,0,.1);
+            background-color: #f1f1f1;
+            border-radius: 50%;
+        }
+        .trans_to_right{
+            transform: translateX(1.3rem);
+        }
+        span{
+            @include sc(.45rem, #fff);
+            transform: translateY(.05rem);
+            line-height: .6rem;
+        }
+        .start_up{
+            transform: translateX(-0.45rem);
+        }
+        .shut_down{
+            transform: translateX(0.45rem);
+        }
+    }
+    .change_to_text{
+        background-color: #4cd964;
+    }
+    .to_forget{
+        float: right;
+        @include sc(.6rem, #3b95e9);
+        margin-right: .3rem;
+    }
 </style>
+
 
