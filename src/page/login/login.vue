@@ -1,12 +1,13 @@
 <template>
     <div class="loginContainer">
         <head-Top :head-title="loginWay?'登录':'密码登录'" goBack="true">
+            <div slot="changeLogin" class="change_login" @click="changeLoginWay">{{loginWay? "短信登录":"账号登录"}}</div>
         </head-Top>
         <form class="loginForm" v-if="loginWay">
             <section class="input_container phone_number">
-                <input type="text" placeholder="手机号码" name="phone" maxlength="11">
-                <button>获取验证码</button>
-                <button>已发送 s</button>
+                <input type="text" placeholder="手机号码" name="phone" maxlength="11" v-model="phoneNumber">
+                <button v-on:click.prevent="getVerifyCode" :class="{right_phone_number:rightPhoneNumber}" v-show="!computedTime">获取验证码</button>
+                <button @click.prevent v-show="computedTime">已发送({{computedTime}}s)</button>
             </section>
             <section class="input_container">
                 <input type="text" placeholder="验证码" name="mobileCode" maxlength="6" v-model="mobileCode">
@@ -14,7 +15,7 @@
         </form>
         <form class="loginForm" v-else>
             <section class="input_container">
-                <input type="text" placeholder="账号" >
+                <input type="text" placeholder="账号密码随便输入！" >
             </section>
             <section class="input_container">
                 <input v-if="!showPassword" type="password" placeholder="密码" v-model="passWord">
@@ -42,15 +43,16 @@
         <p class="login_tips">
             注册过的账号可凭账号密码登录
         </p>
-        <div class="login_container">登录</div>
+        <div class="login_container" v-on:click="login">登录</div>
         <router-link to="/forget" class="to_forget" v-if="!loginWay">重置密码？</router-link>
-
+        <alert-tip v-if="showAlert" @closeTip="closeTip" :alertText="alertText"></alert-tip>
     </div>
 </template>
 
 <script>
 import headTop from "../../components/header/head";
-import {getcaptchas} from '../../service/getData';
+import alertTip from "../../components/common/alertTip"
+import {getcaptchas, checkExsis, mobileCode} from '../../service/getData';
 export default {
     data() {
         return {
@@ -58,6 +60,12 @@ export default {
             showPassword: false, //是否显示密码
             passWord: null, //密码
             captchaCodeImg: null, //验证码地址
+            phoneNumber: null, //电话号码
+            computedTime: 0, //倒数计时
+            mobileCode: null, //验证码
+            showAlert: false, //是否显示提示框
+            alertText: "", //提示的内容
+            validate_token: null, //获取短信时返回的验证值，登录时需要
         }
     },
     created() {
@@ -65,6 +73,7 @@ export default {
     },
     components: {
         headTop,
+        alertTip,
     },
 
     props: {},
@@ -76,6 +85,59 @@ export default {
         async getCaptchaCode() {
             let res = await getcaptchas();
             this.captchaCodeImg = res.code; 
+        },
+
+        changeLoginWay() {
+            this.loginWay = !this.loginWay;  
+        },
+        //发送登录信息
+        login() {
+
+        },
+        //获取验证码j
+        async getVerifyCode() {
+            if (this.rightPhoneNumber) {
+                this.computedTime = 30;
+                this.timer = setInterval(() => {
+                    this.computedTime --;
+                    if(this.computedTime == 0){
+                        clearInterval(this.timer);
+                    }
+                }, 1000)
+            }
+
+            //判断用户是否存在
+            let exsis = await checkExsis(this.phoneNumber, 'mobile');
+            if (exsis.message) {
+                this.showAlert = true;
+                this.alertText = exsis.message;
+                return;
+            } else if (!exsis.is_exists) {
+                this.showAlert = true;
+                this.alertText = "您输入的手机号尚未绑定";
+                return;
+            }
+
+            //发送短信验证码
+            let res = await mobileCode(this.phoneNumber);
+            if (res.message) {
+                this.showAlert = true;
+                this.alertText = res.message;
+                return;
+            }
+
+            this.validate_token = res.validate_token;
+        },
+
+        //关闭提示窗口
+        closeTip() {
+            this.showAlert = false;
+        }
+    },
+    computed: {
+        //判断手机号码是否合法
+        rightPhoneNumber: function() {
+            return /^1\d{10}$/gi.test(this.phoneNumber);
         }
     }
 }
@@ -89,6 +151,13 @@ export default {
         p, span, input{
             font-family: Helvetica Neue,Tahoma,Arial;
         }
+    }
+
+    .change_login{
+        position: absolute;
+        @include ct;
+        right: 0.75rem;
+        @include sc(.7rem, #fff);
     }
 
     .loginForm{
