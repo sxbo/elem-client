@@ -42,3 +42,23 @@ export const mobileCode = phone => fetch('/v4/mobile/verify_code/send', {
     scene: 'login',
     type: 'sms'
 }, "POST");
+
+/**
+ * 手机登录
+ * @param {*} code 
+ * @param {*} mobile 
+ * @param {*} validate_token 
+ */
+export const mLogin = (code, mobile, validate_token) => fetch('/v1/login/app_mobile',{
+    code,
+    mobile,
+    validate_token
+}, 'POST');
+
+/**
+ * 账号密码登录
+ * @param {*} username 
+ * @param {*} password 
+ * @param {*} captcha_code 
+ */
+export const accountLogin = (username, password, captcha_code) => fetch('/v2/login', {username, password, captcha_code}, "POST");

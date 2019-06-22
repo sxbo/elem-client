@@ -5,9 +5,10 @@ import actions from './action'
 import getters from './getters'
 
 Vue.use(Vuex)
-
+//vuex中的初始state
 const state = {
-    userInfo: null,
+    userInfo: null,  //用户信息
+    login: true,     //是否登录
 }
 
 export default new Vuex.Store({

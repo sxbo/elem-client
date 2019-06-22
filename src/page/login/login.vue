@@ -15,7 +15,7 @@
         </form>
         <form class="loginForm" v-else>
             <section class="input_container">
-                <input type="text" placeholder="账号密码随便输入！" >
+                <input type="text" placeholder="账号密码随便输入！" v-model.lazy="userAccount">
             </section>
             <section class="input_container">
                 <input v-if="!showPassword" type="password" placeholder="密码" v-model="passWord">
@@ -27,7 +27,7 @@
                 </div>
             </section>
             <section class="input_container captcha_code_container">
-                <input type="text" placeholder="验证码" maxlength="4">
+                <input type="text" placeholder="验证码" maxlength="4" v-model="verifyCode">
                 <div class="img_change_img">
                     <img v-bind:src="captchaCodeImg" v-show="captchaCodeImg" alt="图">
                     <div class="change_img" @click="getCaptchaCode">
@@ -51,12 +51,13 @@
 
 <script>
 import headTop from "../../components/header/head";
-import alertTip from "../../components/common/alertTip"
-import {getcaptchas, checkExsis, mobileCode} from '../../service/getData';
+import alertTip from "../../components/common/alertTip";
+import {mapState, mapMutations} from 'vuex'
+import {getcaptchas, checkExsis, mobileCode, getUser, mLogin, accountLogin} from '../../service/getData';
 export default {
     data() {
         return {
-            loginWay: false, //登录方式，默认短信登录
+            loginWay: false, //登录方式，默认账号登录
             showPassword: false, //是否显示密码
             passWord: null, //密码
             captchaCodeImg: null, //验证码地址
@@ -66,6 +67,9 @@ export default {
             showAlert: false, //是否显示提示框
             alertText: "", //提示的内容
             validate_token: null, //获取短信时返回的验证值，登录时需要
+            userInfo: null, //登录后获取到的用户信息
+            userAccount: null, //用户名
+            verifyCode: null, //验证码
         }
     },
     created() {
@@ -78,6 +82,11 @@ export default {
 
     props: {},
     methods: {
+
+        ...mapMutations(
+            ['RECORD_USERINFO']
+        ),
+
         changePassWordType() {
             this.showPassword = !this.showPassword;
         },
@@ -91,8 +100,47 @@ export default {
             this.loginWay = !this.loginWay;  
         },
         //发送登录信息
-        login() {
+        async login() {
+            //短信验证登录
+            if (this.loginWay){
+                if (!this.rightPhoneNumber){
+                    this.showAlert = true;
+                    this.alertText = "手机号码不正确！";
+                    return;
+                }else if (!(/^\d{6}$/gi.test(this.mobileCode))){
+                    this.showAlert = true;
+                    this.alertText = "短信验证码不正确";
+                    return;
+                }
+                this.userInfo = await mLogin(this.mobileCode, this.phoneNumber, this.validate_token);
+            }else {
+                if (!this.userAccount) {
+                    this.showAlert = true;
+                    this.alertText = "请输入手机号/邮箱/用户名";
+                    return;
+                } else if (!this.passWord) {
+                    this.showAlert = true;
+                    this.alertText = "请输入密码";
+                    return;
+                } else if (!this.verifyCode) {
+                    this.showAlert = true;
+                    this.alertText = "请输入验证码";
+                    return;
+                }
+                this.userInfo = await accountLogin(this.userAccount, this.passWord, this.verifyCode);
+            }
 
+            if (!this.userInfo.user_id) {
+                this.showAlert = true;
+                this.alertText = this.userInfo.message;
+                if (!this.loginWay) { //账号密码登录，再次获取验证码
+                    this.getCaptchaCode();
+                }
+            } else {
+                //保存 userinfo到store和本地
+                this.RECORD_USERINFO(this.userInfo);
+                this.$router.go(-1);
+            }
         },
         //获取验证码j
         async getVerifyCode() {
