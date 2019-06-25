@@ -8,23 +8,25 @@
                 <input type="search" name="city" placeholder="输入学校、商务楼、地址" class="city_input input_style" required v-model="inputValue">
             </div>
             <div>
-                <input type="submit" name="submit" class="city_submit input_style" value="提交">
+                <input type="submit" name="submit" @click="postpois" class="city_submit input_style" value="提交">
             </div>
         </form>
         <header v-if="historytitle" class="pois_search_history">搜搜历史</header>
         <ul class="getpois_ul">
-            <li v-for="(item, index) in placeList" v-bind:key="index">
+            <li v-for="(item, index) in placeList" @click="nextPage(index, item.geohash)" v-bind:key="index">
                 <h4 class="pois_name ellipsis">{{item.name}}</h4>
                 <p class="pois_address ellipsis">{{item.address}}</p>
             </li>
         </ul>
-        <footer v-if="historytitle && placeList.length" class="clear_all_history">清空所有</footer>
+        <footer v-if="historytitle && placeList.length" @click="clearAllHistory" class="clear_all_history">清空所有</footer>
         <div class="search_none_place" v-if="placeNone">很抱歉！无搜索结果</div>
     </div>
 </template>
 
 <script>
 import headTop from '../../../src/components/header/head';
+import {getStore, setStore, removeStore} from 'src/config/mUtils'
+import {currentcity, searchPlace} from '../../service/getData';
 
 export default {
     data() {
@@ -38,8 +40,73 @@ export default {
             placeNone: false,  //搜索无结果，显示提示信息
         }
     },
+
+    mounted() {
+        this.cityid = this.$route.params.cityid;
+        currentcity(this.cityid).then(res => {
+            this.cityname = res.name
+        })
+        this.initData();
+    },
+
     components: {
         headTop
+    },
+
+    methods: {
+        initData() {
+            if (getStore('placeHistory')) {
+                this.placeList = JSON.parse(getStore("placeHistory"));
+            } else {
+                this.placeList = [];
+            }
+        },
+
+        //发送搜索信息
+        postpois() {
+            if (this.inputValue) {
+                searchPlace(this.cityid, this.inputValue).then((res) => {
+                    //隐藏历史搜索列表
+                    this.historytitle = false;
+                    //显示搜索结果列表
+                    this.placeList = res;
+                    //没搜索到显示提示信息
+                    this.placeNone = res.length? false: true;
+                })
+            }
+        },
+
+        /**
+         * 点击搜索结果进入下一页面时进行判断是否已经有一样的历史记录
+         * 如果没有则新增，如果有则不做重复储存，判断完成后进入下一页
+         */
+        nextPage(index, geohash) {
+            let history = getStore('placeHistory');
+            let choosePlace = this.placeList[index];
+            if (history) {
+                let checkrepeat = false;
+                this.placeHistory = JSON.parse(history);
+                this.placeHistory.forEach(item => {
+                    if(item.geohash == geohash){
+                        checkrepeat = true;
+                    }
+                });
+
+                if (!checkrepeat) {
+                    this.placeHistory.push(choosePlace);
+                }
+            }else {
+                this.placeHistory.push(choosePlace);
+            }
+            setStore('placeHistory', this.placeHistory);
+            this.$router.push({path:'/msite', query:{geohash}});
+
+        },
+
+        clearAllHistory() {
+            removeStore('placeHistory');
+            this.initData();
+        }
     }
 }
 </script>

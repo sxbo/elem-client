@@ -62,3 +62,20 @@ export const mLogin = (code, mobile, validate_token) => fetch('/v1/login/app_mob
  * @param {*} captcha_code 
  */
 export const accountLogin = (username, password, captcha_code) => fetch('/v2/login', {username, password, captcha_code}, "POST");
+
+/**
+ * 获取当前城市
+ * @param {*} number 城市编号 
+ */
+export const currentcity = number => fetch('/v1/cities/' + number);
+
+/**
+ * 获取搜索地址结果
+ * @param {*} cityid 
+ * @param {*} value 
+ */
+export const searchPlace = (cityid, value) => fetch('/v1/pois', {
+    type: 'search',
+    city_id: cityid,
+    keyword: value
+});
