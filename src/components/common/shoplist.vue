@@ -83,6 +83,11 @@ export default {
         }
     },
 
+    components: {
+        loading,
+        ratingStar
+    },
+
     methods:{
 
         //到达底部加载更多 数据
