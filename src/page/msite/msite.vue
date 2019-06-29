@@ -43,7 +43,9 @@
 <script>
 import headTop from '../../components/header/head';
 import footGuide from 'src/components/footer/footGuide';
-import shopList from 'src/components/common/shoplist'
+import shopList from 'src/components/common/shoplist';
+
+import {msiteAddress, msiteFoodTypes, cityGuess} from 'src/service/getData';
 
 export default {
     data() {
@@ -60,7 +62,8 @@ export default {
         headTop,
         footGuide,
         shopList
-    }
+	}
+	
 }
 </script>
 

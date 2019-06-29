@@ -69,6 +69,8 @@ import {imgBaseUrl} from 'src/config/env';
 import ratingStar from './ratingStar';
 import loading from './loading'
 
+import {shopList} from 'src/service/getData';
+
 export default {
 
     data() {
@@ -83,12 +85,30 @@ export default {
         }
     },
 
+    mounted() {
+        this.initData();
+    },
+
     components: {
         loading,
         ratingStar
     },
 
+    props: [
+        'restaurantCategoryId', 
+        'restaurantCategoryIds',
+        'sortByType', 
+        'deliveryMode', 
+        'supportIds', 
+        'confirmSelect', 
+        'geohash'
+    ],
     methods:{
+
+        async initData() {
+            //获取数据
+            let res = await shopList(this.latitude, this.longitude, this.offset, this.restaurantCategoryId)
+        },
 
         //到达底部加载更多 数据
         async loaderMore(){
@@ -109,5 +129,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    @import 'src/style/mixin';
+    .shoplist_container{
+        background: #fff;
+        margin-bottom: 2rem;
+    }
 
+    .shop_li{
+        display: flex;
+        border-bottom: 0.025rem solid #f1f1f1;
+        padding: 0.7rem 0.4rem;
+    }
 </style>
