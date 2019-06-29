@@ -14,7 +14,7 @@
         <nav class="msite_nav">
             <div class="swiper-container" v-if="foodTypes.length">
                 <div class="swiper-wrapper" >
-                    <div class="swiper-slide food_types_container">
+                    <div class="swiper-slide food_types_container" v-for="(item, index) in foodTypes" :key="index">
                         <router-link :to="{path: '/food', query: {geohash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}" v-for="foodItem in item" :key="foodItem.id" class="link_to_food">
                            <figure>
 	            				<img :src="imgBaseUrl + foodItem.image_url">
@@ -45,6 +45,10 @@ import headTop from '../../components/header/head';
 import footGuide from 'src/components/footer/footGuide';
 import shopList from 'src/components/common/shoplist';
 
+import {mapMutations} from 'vuex';
+import 'src/plugins/swiper.min.js';
+import 'src/style/swiper.min.css';
+
 import {msiteAddress, msiteFoodTypes, cityGuess} from 'src/service/getData';
 
 export default {
@@ -62,6 +66,60 @@ export default {
         headTop,
         footGuide,
         shopList
+	},
+
+	async beforeMount() {
+		//路由没带位置，使用定位城市
+		if (!this.$route.query.geohash) {
+			const address = await cityGuess();
+			this.geohash = address.latitude + ',' + address.longitude;
+ 		} else {
+			this.geohash = this.$route.query.geohash;
+		}
+
+		//保存geohash 到全局 vuex
+		this.SAVE_GEOHASH(this.geohash);
+		//根据city页面传入的geohash从后台获取位置信息
+		let res = await msiteAddress(this.geohash);
+		this.msiteTitle = res.name;
+
+		//记录当前经度纬度到 vuex
+		this.RECORD_ADDRESS(res);
+		this.hasGetData = true;
+	},
+
+	mounted() {
+
+		//获取导航食品类型列表
+		msiteFoodTypes(this.geohash).then(res => {
+			let resLength = res.length;
+			let resArr = [...res]; //返回一个新的数组
+			let foodArr = [];
+
+			for (let i = 0, j= 0; i < resLength; i += 8, j++) {
+				foodArr[j] = resArr.splice(0, 8);
+			}
+			this.foodTypes = foodArr;
+		}).then(() => {
+			new Swiper('.swiper-container',{
+				pagination: '.swiper-pagination',
+				loop: true
+			});
+		})
+	},
+
+
+
+	methods: {
+		...mapMutations(['RECORD_ADDRESS', 'SAVE_GEOHASH']),
+		getCategoryId(url){
+			let urlData = decodeURIComponent(url.split('=')[1].replace('&target_name', ''));
+			if (/restaurant_category_id/gi.test(urlData)) {
+				return JSON.parse(urlData).restaurant_category_id.id;
+			} else {
+				return '';
+			}
+		}
 	}
 	
 }
