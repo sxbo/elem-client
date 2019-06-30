@@ -70,6 +70,7 @@ import ratingStar from './ratingStar';
 import loading from './loading'
 
 import {shopList} from 'src/service/getData';
+import {showBack, animate} from 'src/config/mUtils';
 
 export default {
 
@@ -79,7 +80,7 @@ export default {
            preventRepeatReuqest: false, //到达底部加载数据，防止重复加载
            showBackStatus: false,  //  显示返回顶部按钮
            imgBaseUrl,         //图片加载url
-           showLoading: true,   //显示加载动画
+           showLoading: true,   //显示加载动画 默认显示加载动画
            touchend: false,    //没有更多数据
            offset: 0,    //起始标志位  ，批次加载店铺列表，每次加载20个 limit = 20
         }
@@ -108,6 +109,21 @@ export default {
         async initData() {
             //获取数据
             let res = await shopList(this.latitude, this.longitude, this.offset, this.restaurantCategoryId)
+            this.shopListArr = [...res];
+            if (res.length <20) {
+                this.touchend = true;
+            }
+
+            this.hideLoading();
+            //开始监听scrollTop的值，达到一定程度500后显示返回顶部按钮
+            showBack(status => {
+                this.showBackStatus = status;
+            })
+        },
+
+        //赢藏加载动画
+        hideLoading() {
+            this.showLoading = false;
         },
 
         //到达底部加载更多 数据
