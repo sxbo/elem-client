@@ -66,5 +66,6 @@ export default {
 		top: 2.2rem;
         left: 0.2rem;
 		z-index: 10;
+        animation: ellipse .6s infinite ease-in-out;
 	}
 </style>

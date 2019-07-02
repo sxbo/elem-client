@@ -105,6 +105,7 @@ export default {
         'confirmSelect', 
         'geohash'
     ],
+    mixins: [loadMore, getImgPath],
 
     computed: {
         ...mapState(['latitude', 'longitude'])

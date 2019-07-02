@@ -1,5 +1,5 @@
 import {getStyle} from '../../config/mUtils'
-
+import { imgBaseUrl, localapi, proapi } from '../../config/env'
 /**
  * 自定义 v-load-more指令
  */
