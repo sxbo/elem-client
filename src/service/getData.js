@@ -130,3 +130,15 @@ export const shopList = (latitude, longitude, offset, restaurant_category_id = '
 
     return fetch('/shopping/restaurants', data);
 }
+
+/**
+ * 获取search页面搜索结果，搜索附近
+ * @param {*} geohash 
+ * @param {*} keyword 
+ */
+export const searchRestaurant = (geohash, keyword) => fetch('/v4/restaurants', {
+    'extras[]': 'restaurant_activity',
+    geohash,
+    keyword,
+    type: 'search'
+});

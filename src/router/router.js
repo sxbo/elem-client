@@ -4,6 +4,8 @@ const home = r => require.ensure([], () => r(require('../page/home/home')), 'hom
 const login = r => require.ensure([], () => r(require('../page/login/login')), 'login');
 const city = r => require.ensure([], () => r(require('../page/city/city')), 'city');
 const msite = r => require.ensure([], () => r(require('../page/msite/msite')), 'msite');
+const search = r => require.ensure([], () => r(require('../page/search/search')), 'search');
+
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -30,6 +32,10 @@ export default [{
         {
             path: '/msite',
             component: msite
+        },
+        {
+            path: '/search/:geohash',
+            component: search
         }
     ]}
 ]
