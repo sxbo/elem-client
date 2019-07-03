@@ -1,4 +1,10 @@
 <template>
+    <div>profile
+        <router-link to="/info">toinfo</router-link>
+        <router-view></router-view>
+    </div>
+
+    
     
 </template>
 <script>

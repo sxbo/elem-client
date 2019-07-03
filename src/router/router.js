@@ -6,6 +6,8 @@ const city = r => require.ensure([], () => r(require('../page/city/city')), 'cit
 const msite = r => require.ensure([], () => r(require('../page/msite/msite')), 'msite');
 const search = r => require.ensure([], () => r(require('../page/search/search')), 'search');
 
+const profile = r => require.ensure([], () => r(require('../page/profile/profile')), 'profile');
+const info = r => require.ensure([], () => r(require('../page/profile/info')), 'info');
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -36,6 +38,16 @@ export default [{
         {
             path: '/search/:geohash',
             component: search
+        },
+        {
+            path: '/profile',
+            component: profile,
+            children: [
+                {
+                    path: '/info',
+                    component: info
+                }
+            ]
         }
     ]}
 ]
