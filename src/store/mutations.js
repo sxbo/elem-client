@@ -2,7 +2,8 @@ import {
 	GET_USERINFO,
 	RECORD_USERINFO,
 	RECORD_ADDRESS,
-	SAVE_GEOHASH
+	SAVE_GEOHASH,
+	SAVE_AVANDER
 } from './mutation-types'
 import { setStore } from '../config/mUtils';
 
@@ -38,7 +39,12 @@ export default {
 	//保存geohash 到 vuex
 	[SAVE_GEOHASH](state, geohash) {
 		state.geohash = geohash;
-	}
+	},
+
+	//保存图片
+	[SAVE_AVANDER](state, imgPath) {
+		state.imgPath = imgPath;
+	},
 
 
 
