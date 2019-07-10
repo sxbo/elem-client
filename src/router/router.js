@@ -8,6 +8,9 @@ const search = r => require.ensure([], () => r(require('../page/search/search'))
 
 const profile = r => require.ensure([], () => r(require('../page/profile/profile')), 'profile');
 const info = r => require.ensure([], () => r(require('../page/profile/info')), 'info');
+const balance = r => require.ensure([], () => r(require('../page/balance/balance')), 'balance');
+
+
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -44,10 +47,14 @@ export default [{
             component: profile,
             children: [
                 {
-                    path: '/info',
+                    path: 'info',
                     component: info
                 }
             ]
+        },
+        {
+            path: '/balance',
+            component: balance
         }
     ]}
 ]
