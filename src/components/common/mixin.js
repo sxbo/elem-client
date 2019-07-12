@@ -67,6 +67,9 @@ export const loadMore = {
     }
 }
 
+/**
+ * vue mixin特性抽取的公共方法
+ */
 export const getImgPath = {
     methods: {
         //传递过来的图片地址需要处理后才能正常使用

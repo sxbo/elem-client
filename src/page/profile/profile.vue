@@ -162,6 +162,7 @@ export default {
 
     mounted() {
         console.log(this.userInfo);
+        this.initData();
     },
     
     components: {
@@ -174,13 +175,31 @@ export default {
     },
 
     methods: {
-        ...mapMutations(['SAVE_AVANDER'])
+        ...mapMutations(['SAVE_AVANDER']),
+        initData() {
+            if (this.userInfo && this.userInfo.user_id){
+                this.avatar = this.userInfo.avatar;
+                this.username = this.userInfo.username;
+                this.mobile = this.userInfo.mobile || '暂无绑定手机号';
+                this.balance = this.userInfo.balance;
+                this.count = this.userInfo.gift_amount;
+                this.pointNumber = this.userInfo.point;
+            }else{
+                this.username = "登录/注册";
+                this.mobile = '暂无绑定手机号';
+            }
+        }
+
     },
 
+
+    /**
+     * 若userInfo信息改变，重新初始化数据
+     */
     watch: {
-        // userInfo: function (value){
-        //     //
-        // }
+        userInfo: function (value){
+            this.initData();
+        }
     }
 }
 </script>
@@ -262,7 +281,7 @@ export default {
                     text-align: center;
                 }
                 .info-data-top{
-                    @include sc(1.2rem, #f90);
+                    @include sc(.55rem, #333);
                     padding: .853333rem 0 .453333rem;
                     b{
                         display: inline-block;
