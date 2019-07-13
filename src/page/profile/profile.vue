@@ -1,7 +1,7 @@
 <template>
     <div class="profile_page">
         <head-top go-back="true" :head-title="profiletitle"></head-top>
-        <section>
+        <section v-if="$route.path === '/profile'">
             <section class="profile-number">
                 <router-link :to="userInfo && userInfo.user_id ? '/profile/info' : '/login'" class="profile-link">
                     <img :src="imgBaseUrl + userInfo.avatar" class="privateImage" v-if="userInfo && userInfo.user_id">
@@ -162,6 +162,7 @@ export default {
 
     mounted() {
         console.log(this.userInfo);
+        console.log(this.$route)
         this.initData();
     },
     
