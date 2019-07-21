@@ -15,9 +15,13 @@ export default {
             balance: 23,
             isLongin: false,
             privilage: true,
-            name: 'abcd'
+            name: 'abcd',
+            abhd: 'sadf',
+            kei: '212'
         }
     }
+
+    
 }
 </script>
 
